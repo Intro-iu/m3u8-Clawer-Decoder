@@ -1,0 +1,39 @@
+# 当在GitHub网站上点击Run workflow按钮时触发workflow
+on: 
+  workflow_dispatch:
+
+# workflow的名称
+name: Crawler
+
+# 定义一个名为crawler的job
+jobs:
+  crawler:
+
+    # job运行在ubuntu-latest环境上
+    runs-on: ubuntu-latest
+
+    # job包含以下步骤
+    steps:
+
+      # 运行python爬虫程序，并将m3u8文件保存到data文件夹中
+      - run : |
+          python m3u8-download.py
+
+      # 使用actions/upload-artifact@v2 action，并指定输入参数。上传data文件夹到artifact中。
+      - uses: actions/upload-artifact@v2
+        with:
+          name: data # artifact的名称，用于后续下载使用
+          path: data # artifact的路径，与上一步保持一致
+
+      # 使用actions/download-artifact@v2 action，并指定输入参数。下载artifact中的data文件夹到本地。
+      - uses: actions/download-artifact@v2 
+        with:
+          name : data # artifact的名称，与上一步保持一致 
+          path : /tmp/data # artifact下载到本地的路径
+
+      # 使用softprops/action-gh-release@v1 action，并指定环境变量和输入参数。发布/tmp/data文件夹下的所有m3u8文件到release页面。
+      - uses : softprops/action-gh-release@v1 
+        env :
+          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }} # GitHub令牌，用于授权操作 
+        with :
+          files : '/tmp/data/*.m3u8'  # 要发布到release页面的文件路径  
