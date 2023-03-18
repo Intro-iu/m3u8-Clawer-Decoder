@@ -17,7 +17,7 @@ jobs:
 
       # 运行python爬虫程序，并将m3u8文件保存到data文件夹中
       - run : |
-          python /home/runner/work/m3u8-Clawer-Decoder/m3u8-download.py
+          python m3u8-download.py
 
       # 使用actions/upload-artifact@v2 action，并指定输入参数。上传data文件夹到artifact中。
       - uses: actions/upload-artifact@v2
